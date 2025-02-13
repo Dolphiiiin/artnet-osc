@@ -1,0 +1,16 @@
+{
+  "name": "cluster-artnet-osc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dmxnet": "^0.9.0",
+    "node-osc": "^9.1.4"
+  }
+}
