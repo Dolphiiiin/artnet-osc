@@ -1,9 +1,21 @@
 const osc = require('node-osc');
 const dmxlib = require('dmxnet');
+const minimist = require('minimist');
+
+const argv = minimist(process.argv.slice(2));
+
+console.log('Valid argv options:', {
+    osc_host: argv.osc_host,
+    osc_port: argv.osc_port,
+    artnet_host: argv.artnet_host,
+    artnet_subnet: argv.artnet_subnet,
+    artnet_universe: argv.artnet_universe,
+    artnet_net: argv.artnet_net
+});
 
 const OSC_OPTIONS = {
-    host: '127.0.0.1',
-    port: 9000
+    host: argv.osc_host || '127.0.0.1',
+    port: argv.osc_port || 9000
 };
 
 const oscClient = new osc.Client(OSC_OPTIONS.host, OSC_OPTIONS.port);
@@ -14,15 +26,15 @@ const DMXNET_OPTIONS = {
     esta: 0,
     sName: "Text",
     lName: "Long description",
-    hosts: ["127.0.0.1"]
+    hosts: [argv.artnet_host || "127.0.0.1"]
 };
 const dmxnet = new dmxlib.dmxnet(DMXNET_OPTIONS);
 
 const ARTNET_OPTIONS = {
-    subnet: 0,
-    universe: 0,
-    net: 0
-}
+    subnet: argv.artnet_subnet || 0,
+    universe: argv.artnet_universe || 0,
+    net: argv.artnet_net || 0
+};
 
 const receiver = dmxnet.newReceiver(ARTNET_OPTIONS);
 
@@ -42,7 +54,7 @@ receiver.on('data', function(data) {
     if (changedValues.length === 1) {
         const { index, value } = changedValues[0];
         oscClient.send(`/${ARTNET_OPTIONS.universe}/dmx/${index}`, [{ type: 'f', value: value }], function () {
-            console.log(`Sent OSC message for channel ${index}`);
+            // console.log(`Sent OSC message for channel ${index}`);
         });
     } else if (changedValues.length > 1) {
         changedValues.forEach(({ index, value }) => {
@@ -52,7 +64,7 @@ receiver.on('data', function(data) {
             });
         });
         oscClient.send({ address: '', args: [], elements: bundle }, function () {
-            console.log('Sent OSC bundle message');
+            // console.log('Sent OSC bundle message');
         });
     }
 });
